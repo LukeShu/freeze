@@ -1,0 +1,60 @@
+name: Quality Assurance
+on:
+  - push
+  - pull_request
+jobs:
+  go-test-gopath:
+    strategy:
+      fail-fast: false
+      matrix:
+        goversion:
+          # actions/setup-go@v3 only works down to 1.5, and I don't
+          # care enough to manually install older versions.
+          #
+          # - "1.0"
+          # - "1.1"
+          # - "1.2"
+          # - "1.3"
+          # - "1.4"
+          - "1.5"
+          - "1.6"
+          - "1.7"
+          - "1.8"
+          - "1.9"
+          - "1.10"
+    name: "${{ github.event_name }} / go${{ matrix.goversion }} / go test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "~${{ matrix.goversion }}"
+      - uses: actions/checkout@v3
+        with:
+          path: ~/go/github.com/lukechampine/freeze
+      - run: go test
+        working-directory: ~/go/github.com/lukechampine/freeze
+  go-test-gomod:
+    strategy:
+      fail-fast: false
+      matrix:
+        goversion:
+          - "1.11"
+          - "1.12"
+          - "1.13"
+          - "1.14"
+          - "1.15"
+          - "1.16"
+          - "1.17"
+          - "1.18"
+          - "1.19"
+          - "1.20"
+    name: "${{ github.event_name }} / go${{ matrix.goversion }} / go test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "~${{ matrix.goversion }}"
+      - uses: actions/checkout@v3
+      - run: go test
+        env:
+          GO111MODULE: "on"
