@@ -31,8 +31,8 @@ freeze is best used for "one-off" debugging. Something like this:
 
 Again: do not use freeze in production. It's a cool proof-of-concept, and it
 can be useful for debugging, but that's about it. Let me put it another way:
-freeze imports four packages: reflect, runtime, unsafe, and syscall (actually
-golang.org/x/sys/unix). Does that sound like a package you want to depend on?
+freeze imports four packages: reflect, runtime, unsafe, and syscall. Does that
+sound like a package you want to depend on?
 
 Okay, back to the real documention:
 
@@ -100,9 +100,8 @@ package freeze
 import (
 	"reflect"
 	"runtime"
+	"syscall"
 	"unsafe"
-
-	"golang.org/x/sys/unix"
 )
 
 // Pointer returns a frozen copy of v, which must be a pointer. Future writes
@@ -270,18 +269,18 @@ func copyAndFreeze(dataptr, n uintptr) uintptr {
 		return dataptr
 	}
 	// allocate new memory to be frozen
-	newMem, err := unix.Mmap(-1, 0, int(n), unix.PROT_READ|unix.PROT_WRITE, unix.MAP_ANON|unix.MAP_PRIVATE)
+	newMem, err := syscall.Mmap(-1, 0, int(n), syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_ANON|syscall.MAP_PRIVATE)
 	if err != nil {
 		panic(err)
 	}
 	// set a finalizer to unmap the memory when it would normally be GC'd
-	runtime.SetFinalizer(&newMem, func(b *[]byte) { _ = unix.Munmap(*b) })
+	runtime.SetFinalizer(&newMem, func(b *[]byte) { _ = syscall.Munmap(*b) })
 
 	// copy n bytes into newMem
 	copy(newMem, *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{dataptr, int(n), int(n)})))
 
 	// freeze the new memory
-	if err = unix.Mprotect(newMem, unix.PROT_READ); err != nil {
+	if err = syscall.Mprotect(newMem, syscall.PROT_READ); err != nil {
 		panic(err)
 	}
 

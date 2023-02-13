@@ -41,9 +41,8 @@ best used for "one-off" debugging. Something like this:
 
 Again: **do not use `freeze` in production.** It's a cool proof-of-concept, and
 it can be useful for debugging, but that's about it. Let me put it another way:
-`freeze` imports four packages: `reflect`, `runtime`, `unsafe`, and `syscall`
-(actually `golang.org/x/sys/unix`). Does that sound like a package you want to
-depend on?
+`freeze` imports four packages: `reflect`, `runtime`, `unsafe`, and `syscall`.
+Does that sound like a package you want to depend on?
 
 Okay, back to the real documention:
 
